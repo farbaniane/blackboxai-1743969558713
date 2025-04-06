@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Élèves</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-100">
+    <div id="app" class="min-h-screen">
+        <!-- Navigation -->
+        <nav class="bg-blue-600 text-white p-4 shadow-md">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-2xl font-bold">Gestion des Élèves</h1>
+                <div class="flex space-x-4">
+                    <a href="/index.html" class="hover:underline"><i class="fas fa-home mr-1"></i>Accueil</a>
+                    <a href="#" class="bg-blue-700 px-3 py-1 rounded">Élèves</a>
+                    <a href="/classes.html" class="hover:underline">Classes</a>
+                    <a href="/finance.html" class="hover:underline">Finances</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="container mx-auto p-4">
+            <!-- Student Search and Filters -->
+            <div class="bg-white rounded-lg shadow p-4 mb-4">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div class="relative flex-grow">
+                        <input type="text" id="studentSearch" placeholder="Rechercher un élève..." 
+                               class="w-full p-2 pl-10 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <div class="flex gap-2">
+                        <select id="classFilter" class="p-2 border rounded">
+                            <option value="">Toutes les classes</option>
+                            <!-- Will be populated by JavaScript -->
+                        </select>
+                        <select id="statusFilter" class="p-2 border rounded">
+                            <option value="">Tous les statuts</option>
+                            <option value="interne">Interne</option>
+                            <option value="externe">Externe</option>
+                            <option value="transfert">Transfert</option>
+                            <option value="abandon">Abandon</option>
+                            <option value="redoublant">Redoublant</option>
+                            <option value="passant">Passant</option>
+                            <option value="exclusion">Exclusion</option>
+                        </select>
+                        <button id="addStudentBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                            <i class="fas fa-plus mr-1"></i>Ajouter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Table -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="w-full responsive-table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Âge</th>
+                            <th>Classe</th>
+                            <th>Statut</th>
+                            <th>Date Inscription</th>
+                            <th>Fournitures</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        <!-- Will be populated by JavaScript -->
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-gray-500">Chargement des données...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-4">
+                <div class="text-sm text-gray-600">
+                    Affichage de <span id="startItem">1</span> à <span id="endItem">10</span> sur <span id="totalItems">0</span> élèves
+                </div>
+                <div class="flex gap-1">
+                    <button id="prevPage" class="px-3 py-1 border rounded disabled:opacity-50" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button id="nextPage" class="px-3 py-1 border rounded disabled:opacity-50" disabled>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Student Modal (hidden by default) -->
+        <div id="studentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center border-b p-4">
+                    <h3 class="text-xl font-bold" id="modalTitle">Ajouter un Élève</h3>
+                    <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="studentForm" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Personal Information -->
+                    <div class="md:col-span-2 border-b pb-4 mb-2">
+                        <h4 class="font-semibold text-lg text-blue-600">Informations Personnelles</h4>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nom Complet*</label>
+                        <input type="text" name="fullName" required class="w-full p-2 border rounded mt-1">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Date de Naissance*</label>
+                        <input type="date" name="birthDate" required class="w-full p-2 border rounded mt-1">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Classe*</label>
+                        <select name="class" required class="w-full p-2 border rounded mt-1">
+                            <!-- Will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Statut*</label>
+                        <select name="status" required class="w-full p-2 border rounded mt-1">
+                            <option value="interne">Interne</option>
+                            <option value="externe">Externe</option>
+                            <option value="transfert">Transfert</option>
+                            <option value="abandon">Abandon</option>
+                            <option value="redoublant">Redoublant</option>
+                            <option value="passant">Passant</option>
+                            <option value="exclusion">Exclusion</option>
+                        </select>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="md:col-span-2 border-b pb-4 mb-2 mt-4">
+                        <h4 class="font-semibold text-lg text-blue-600">Informations de Contact</h4>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nom du Parent*</label>
+                        <input type="text" name="parentName" required class="w-full p-2 border rounded mt-1">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Téléphone*</label>
+                        <input type="tel" name="phone" required class="w-full p-2 border rounded mt-1">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Adresse*</label>
+                        <textarea name="address" rows="2" required class="w-full p-2 border rounded mt-1"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" name="email" class="w-full p-2 border rounded mt-1">
+                    </div>
+
+                    <!-- School Supplies -->
+                    <div class="md:col-span-2 border-b pb-4 mb-2 mt-4">
+                        <h4 class="font-semibold text-lg text-blue-600">Fournitures Scolaires</h4>
+                        <p class="text-sm text-gray-500">21 articles requis</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700">Articles Manquants</label>
+                        <textarea name="missingSupplies" rows="3" placeholder="Listez les fournitures manquantes..." class="w-full p-2 border rounded mt-1"></textarea>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="md:col-span-2 flex justify-end gap-2 pt-4">
+                        <button type="button" id="cancelForm" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
+                            Annuler
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/js/students.js"></script>
+</body>
+</html>
